@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static com.ichuvilin.model.RabbitQueue.CALLBACK_MESSAGE_UPDATE;
 import static com.ichuvilin.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 
 @Service
@@ -19,6 +20,13 @@ public class ConsumerServiceImpl implements ConsumerService {
 		this.mainService = mainService;
 	}
 
+
+	@Override
+	@RabbitListener(queues = CALLBACK_MESSAGE_UPDATE)
+	public void consumeCallbackMessage(Update update) {
+		log.debug("NODE: Callback message is received");
+		mainService.processCallBackMessage(update);
+	}
 
 	@Override
 	@RabbitListener(queues = TEXT_MESSAGE_UPDATE)

@@ -5,8 +5,10 @@ import com.ichuvilin.utils.MessageUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static com.ichuvilin.model.RabbitQueue.CALLBACK_MESSAGE_UPDATE;
 import static com.ichuvilin.model.RabbitQueue.TEXT_MESSAGE_UPDATE;
 
 @Component
@@ -30,9 +32,10 @@ public class UpdateController {
 		if (update == null) {
 			log.error("Received update is null");
 			return;
-		}
-		if (update.hasMessage()) {
+		} else if (update.hasMessage()) {
 			distributeMessageByType(update);
+		} else if (update.hasCallbackQuery()) {
+			processCallbackMessage(update);
 		}
 	}
 
@@ -54,6 +57,11 @@ public class UpdateController {
 
 	private void processTextMessage(Update update) {
 		updateProducer.produce(TEXT_MESSAGE_UPDATE, update);
+	}
+
+	private void processCallbackMessage(Update update) {
+		log.debug(update.getCallbackQuery().getData());
+		updateProducer.produce(CALLBACK_MESSAGE_UPDATE, update);
 	}
 
 	public void setView(SendMessage sendMessage) {

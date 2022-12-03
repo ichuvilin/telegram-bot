@@ -21,6 +21,11 @@ public class RabbitConfiguration {
 	}
 
 	@Bean
+	public Queue callbackMessageQueue() {
+		return new Queue(CALLBACK_MESSAGE_UPDATE);
+	}
+
+	@Bean
 	public Queue answerMessageQueue() {
 		return new Queue(ANSWER_MESSAGE);
 	}
